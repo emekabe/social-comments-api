@@ -30,11 +30,11 @@ To ensure adding a new platform (e.g. TikTok, YouTube, Threads) requires **zero 
 │  - postReply(params): Promise<NormalizedComment>       │
 │  - getCapabilities(): PlatformCapabilities             │
 │  - healthCheck?(): Promise<HealthResult>               │
-└───────┬──────────────┬───────────────┬─────────────────┘
-        │              │               │
-┌───────▼──────┐┌──────▼──────┐┌───────▼──────┐┌─────────▼────────┐
+└───────┬──────────────┬───────────────┬─────────────┬───┘
+        │              │               │             │
+┌───────▼──────┐┌──────▼──────┐┌───────▼───────┐┌────▼────────────┐
 │TwitterAdapter││InstagramAdpt││LinkedInAdapter││ FacebookAdapter │
-└───────┬──────┘└──────┬──────┘└───────┬──────┘└─────────┬────────┘
+└───────┬──────┘└──────┬──────┘└───────┬───────┘└────────┬────────┘
         │              │               │                 │
 ┌───────▼──────┐┌──────▼──────┐┌───────▼──────┐┌─────────▼────────┐
 │Twitter Client││InstagramClnt││LinkedInClient││ Facebook Client  │
