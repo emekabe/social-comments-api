@@ -56,7 +56,7 @@ The system centers around the **Adapter / Strategy Pattern** coupled with a cent
 └───────┬──────┘└──────┬──────┘└───────┬──────┘└─────────┬────────┘
         │              │               │                 │
 ┌───────▼──────┐┌──────▼──────┐┌───────▼──────┐┌─────────▼────────┐
-│ Twitter API  ││ Instagram   ││ LinkedIn REST││  Facebook Graph │
+│ Twitter API  ││ Instagram   ││ LinkedIn REST││  Facebook Graph  │
 │ Client / SDK ││ Graph Client││ Client / SDK ││   Client / SDK   │
 └──────────────┘└─────────────┘└──────────────┘└──────────────────┘
 ```
