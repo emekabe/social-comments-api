@@ -1,0 +1,250 @@
+{
+  "info": {
+    "_postman_id": "8f3b2c1a-5d6e-4f7b-9c8d-1e2f3a4b5c6d",
+    "name": "Social Comments API (v1.0.0)",
+    "description": "Comprehensive Postman collection for the multi-platform social media comment system API. Supports Twitter/X, Instagram, LinkedIn, and Facebook comment retrieval, hierarchical threading, reply publishing, and idempotency guarantees.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string",
+      "description": "Base URL of the running API server"
+    },
+    {
+      "key": "postId",
+      "value": "00000000-0000-0000-0000-000000000001",
+      "type": "string",
+      "description": "Default internal UUID for sample Twitter post"
+    },
+    {
+      "key": "commentId",
+      "value": "00000000-0000-0000-0001-000000000001",
+      "type": "string",
+      "description": "Default internal UUID for sample Twitter comment"
+    },
+    {
+      "key": "platform",
+      "value": "twitter",
+      "type": "string",
+      "description": "Active target social platform (twitter, instagram, linkedin, facebook)"
+    },
+    {
+      "key": "apiKey",
+      "value": "dev-api-key-placeholder",
+      "type": "string",
+      "description": "API authorization placeholder header for future protected routes"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & System",
+      "item": [
+        {
+          "name": "Service Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "health"]
+            },
+            "description": "Verifies that the API server is operational and returns uptime and timestamp."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Platforms",
+      "item": [
+        {
+          "name": "List Supported Platforms & Capabilities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/platforms",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "platforms"]
+            },
+            "description": "Returns all registered social platform adapters, their capabilities (nesting depth, max comment length), and current health status."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "List Scheduled & Published Posts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/posts?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "posts"],
+              "query": [
+                { "key": "page", "value": "1", "description": "Page number" },
+                { "key": "limit", "value": "10", "description": "Page size limit" }
+              ]
+            },
+            "description": "Lists all scheduled and published posts across all connected social channels."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Post by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/posts/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "posts", "{{postId}}"]
+            },
+            "description": "Retrieves metadata and platform IDs for a specific post by internal UUID."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "Retrieve Comments (Tree View / Default)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/posts/{{postId}}/comments?view=tree&source=sync",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "posts", "{{postId}}", "comments"],
+              "query": [
+                { "key": "view", "value": "tree", "description": "Returns hierarchical comment tree with nested replies" },
+                { "key": "source", "value": "sync", "description": "Pulls latest from platform adapter, syncs to DB, and returns" }
+              ]
+            },
+            "description": "Pulls comments from the native platform adapter, updates local DB, and returns a hierarchically nested comment tree."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Comments (Flat View)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/posts/{{postId}}/comments?view=flat&source=sync",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "posts", "{{postId}}", "comments"],
+              "query": [
+                { "key": "view", "value": "flat", "description": "Returns flat chronological list" },
+                { "key": "source", "value": "sync", "description": "Syncs from platform before returning" }
+              ]
+            },
+            "description": "Returns comments as a flat chronological array without nesting replies."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Comments (Cached DB Only)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/posts/{{postId}}/comments?view=tree&source=db",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "posts", "{{postId}}", "comments"],
+              "query": [
+                { "key": "view", "value": "tree", "description": "Hierarchical view" },
+                { "key": "source", "value": "db", "description": "Reads directly from local DB without triggering platform API calls" }
+              ]
+            },
+            "description": "Fast read path that serves locally persisted comments without external platform network requests."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Comments (Live Platform Bypass)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/posts/{{postId}}/comments?view=tree&source=live",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "posts", "{{postId}}", "comments"],
+              "query": [
+                { "key": "view", "value": "tree", "description": "Hierarchical view" },
+                { "key": "source", "value": "live", "description": "Direct pass-through from adapter without mutating local DB" }
+              ]
+            },
+            "description": "Pass-through mode that queries the platform adapter directly and normalizes output without writing to local database."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Replies & Idempotency",
+      "item": [
+        {
+          "name": "Post Reply to Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Thank you for your feedback! We will include this in our next release.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/posts/{{postId}}/comments/{{commentId}}/replies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "posts", "{{postId}}", "comments", "{{commentId}}", "replies"]
+            },
+            "description": "Posts a reply to an existing comment. Dispatches creation to native platform adapter and persists normalized record with parent linkage."
+          },
+          "response": []
+        },
+        {
+          "name": "Post Reply with Idempotency Key (Safe Retries)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "req_reply_unique_key_001",
+                "description": "Unique UUID/string to prevent duplicate replies on network retries"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Replying with guaranteed idempotency protection.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/posts/{{postId}}/comments/{{commentId}}/replies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "posts", "{{postId}}", "comments", "{{commentId}}", "replies"]
+            },
+            "description": "Demonstrates idempotency. Sending this request multiple times with the same Idempotency-Key header returns the original 201 response cached from the first execution with 'X-Cache-Lookup: HIT'."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

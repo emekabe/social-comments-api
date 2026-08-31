@@ -68,12 +68,23 @@ web_modules/
 # Yarn Integrity file
 .yarn-integrity
 
+# SQLite / Local Databases
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+
 # dotenv environment variable files
 .env
 .env.development.local
 .env.test.local
 .env.production.local
 .env.local
+.env.*
+!.env.example
 *.env
 
 # Stores VSCode versions used for testing

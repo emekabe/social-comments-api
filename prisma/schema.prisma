@@ -1,0 +1,80 @@
+// Prisma schema for Social Media Comments API
+// Uses SQLite by default for zero-setup local evaluation, but fully compatible with PostgreSQL.
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Scheduled or published social media post
+model Post {
+  id             String    @id @default(uuid())
+  platform       String    // e.g. "twitter", "instagram", "linkedin", "facebook"
+  platformPostId String    // External post ID on the native platform
+  content        String
+  scheduledAt    DateTime?
+  publishedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  comments       Comment[]
+
+  @@unique([platform, platformPostId], name: "platform_platformPostId_unique")
+  @@map("posts")
+}
+
+// Normalized comment supporting hierarchical threading
+model Comment {
+  id                      String    @id @default(uuid())
+  postId                  String
+  post                    Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  platform                String    // Platform identifier
+  platformCommentId       String    // External comment ID on native platform
+  platformParentCommentId String?   // External parent comment ID if this is a reply on platform
+  
+  // Local Adjacency List for threading
+  parentId                String?
+  parent                  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies                 Comment[] @relation("CommentReplies")
+
+  // Author details (normalized)
+  authorId                String
+  authorName              String
+  authorUsername          String?
+  authorAvatarUrl         String?
+
+  // Content & Metrics
+  content                 String
+  likeCount               Int       @default(0)
+  replyCount              Int       @default(0)
+
+  // Preserves full native platform payload for auditing and platform-specific feature extraction
+  rawPayload              String    // JSON string for universal cross-DB compatibility (SQLite & PostgreSQL)
+
+  platformCreatedAt       DateTime
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  @@unique([platform, platformCommentId], name: "platform_platformCommentId_unique")
+  @@index([postId])
+  @@index([parentId])
+  @@map("comments")
+}
+
+// Idempotency records for safe reply creation retries
+model IdempotencyRecord {
+  key             String   @id
+  requestPath     String
+  requestBodyHash String
+  statusCode      Int
+  responseBody    String   // JSON response stored to return on identical retries
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime
+
+  @@map("idempotency_records")
+}
