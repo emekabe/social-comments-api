@@ -4,9 +4,9 @@
   "description": "Multi-platform social media comment system API with extensible adapter architecture",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "dev": "tsx watch src/server.ts",
+    "build": "node api.js && tsc",
+    "start": "node api.js && node dist/server.js",
+    "dev": "node api.js && tsx watch src/server.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
